@@ -1,0 +1,59 @@
+This is the recommended tech stack for **Codehub**.
+
+Since you are building a *competitive* platform specifically for Web Development (not just algorithms), your stack needs to handle **visual rendering**, **untrusted code execution**, and **real-time feedback**.
+
+I have refined your MERN choice into a production-ready architecture.
+
+### 1. The Core Stack (MERN + Type Safety)
+
+* **Frontend:** `React` + `Vite` (Much faster than Create-React-App).
+* *Language:* **TypeScript** (Highly recommended for a coding platform to manage complex state).
+
+
+* **Backend:** `Node.js` + `Express`.
+* **Database:** `MongoDB` (Best for storing varied problem structures and code submissions).
+
+---
+
+### 2. The "Competitive" Engine (Critical)
+
+This is what makes your platform work. You need to run user code securely.
+
+| Feature | Recommended Tool | Why? |
+| --- | --- | --- |
+| **Code Editor** | **Monaco Editor** | The engine that powers VS Code. It gives users IntelliSense, syntax highlighting, and shortcuts they are used to. |
+| **Frontend Sandbox** | **Sandpack** (by CodeSandbox) | **Crucial.** It allows you to run a full React/Node environment *inside the browser*. You don't need expensive servers to render the user's frontend code. |
+| **Backend Sandbox** | **Docker** or **Judge0** | For Node.js/API challenges, you cannot run them in the browser safely. You must spin up a Docker container or use an API like Judge0 to execute the code and return the output. |
+| **Visual Testing** | **Puppeteer** / **Playwright** | To grade UI. A headless browser takes a screenshot of the user's result and compares it to the "Target Design" pixel-by-pixel. |
+| **Logic Testing** | **Jest** / **Vitest** | To grade functionality (e.g., "Does the function return true?"). |
+
+---
+
+### 3. The "Dribbble" Design Stack
+
+To achieve the "Glassmorphic / Cyber-Educational" aesthetic you asked for:
+
+* **Styling:** `Tailwind CSS` (Utility-first).
+* **Animations:** `Framer Motion` (For the physics-based floating cards and layout transitions).
+* **Icons:** `Lucide React` (Clean, modern SVG icons).
+* **Components:** `Shadcn/UI` (A collection of accessible components built on Tailwind—saves you hours of coding buttons/modals).
+
+---
+
+### 4. Infrastructure & DevOps (Deployment)
+
+* **Frontend:** **Vercel** (Best for React/Vite).
+* **Backend:** **Render** or **Railway** (Need a provider that supports Docker/Node.js processes, which Vercel does not handle well for long-running code execution).
+* **Auth:** **Clerk** (Easiest implementation) or **JWT + Passport.js** (If you want to build auth yourself for learning).
+
+---
+
+### Summary: The "Secret Sauce" Architecture
+
+For a Web Dev specific platform, your architecture differs from LeetCode.
+
+1. **User** types React code in **Monaco Editor**.
+2. **Sandpack** bundles it locally in the browser (0 latency).
+3. **User** clicks "Submit".
+4. **Puppeteer** (on Backend) visits the user's preview URL, takes a screenshot, and calculates the "Visual Match Score" (e.g., 98% match).
+5. **Score** is saved to **MongoDB**.
