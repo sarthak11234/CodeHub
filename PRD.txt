@@ -1,0 +1,119 @@
+Here is a structured Product Requirements Document (PRD) for **Codehub**. This document serves as the "source of truth" for what you are building, defining the features, scope, and technical constraints for your MERN-based platform.
+
+---
+
+# Product Requirements Document (PRD): Codehub
+
+| Project Name | Codehub |
+| --- | --- |
+| **Author** | Sarthak |
+| **Version** | 1.0 (MVP Draft) |
+| **Status** | Planning |
+| **Tech Stack** | React, Tailwind, Node.js, Express, MongoDB |
+
+---
+
+## 1. Executive Summary
+
+**Codehub** is a competitive learning platform dedicated to Web Development. Unlike traditional algorithm-heavy platforms (like LeetCode or CodeForces), Codehub focuses on practical, real-world web skills. Users compete to solve frontend UI challenges and backend API logic problems within a browser-based IDE.
+
+### 1.1 Core Value Proposition
+
+* **For Students:** A gamified way to practice React, CSS, and API design without setting up local environments.
+* **Differentiation:** Focuses on *visual* and *architectural* web challenges rather than just data structures and algorithms (DSA).
+
+---
+
+## 2. Target Audience
+
+* **Primary:** Computer Science/Engineering students preparing for web development interviews.
+* **Secondary:** Self-taught developers looking to build a portfolio through ranked challenges.
+
+---
+
+## 3. Key Features (MVP Scope)
+
+### 3.1 User Management
+
+* **Registration/Login:** Secure auth via Email/Password (JWT).
+* **User Profile:** Displays "Global Rank," "Solved Problems," and specific skill badges (e.g., "CSS Wizard", "API Architect").
+
+### 3.2 The Challenge Interface (The Core)
+
+* **Browser-Based IDE:** Integrated code editor (Monaco Editor) with syntax highlighting for JSX, CSS, and JS.
+* **Split-Pane View:** Left side for code, right side for live preview (frontend) or console output (backend).
+* **Problem Description:** Markdown-supported area explaining the task (e.g., "Create a card component that flips on hover").
+
+### 3.3 Grading & Submission System
+
+* **Frontend Judge (Visual/Functional):**
+* *Functional:* Runs unit tests (e.g., React Testing Library) to verify button clicks, state changes, and prop usage.
+* *Visual (Optional for MVP):* Checks if the user's DOM structure matches the required elements.
+
+
+* **Backend Judge (Logic):**
+* Sends HTTP requests to the user's Express middleware/functions and validates the JSON response.
+
+
+
+### 3.4 Competitive Mechanics
+
+* **Leaderboard:** Global ranking based on Elo rating or total points.
+* **Submission Metrics:** Track execution time (performance) and code character count (optimization).
+
+---
+
+## 4. Technical Architecture
+
+### 4.1 Frontend (React + Tailwind)
+
+* **State Management:** Context API or Redux Toolkit (for managing IDE state and user sessions).
+* **Sandboxing:** Use `Sandpack` (by CodeSandbox) or pure `iframe` isolation to render user code safely without crashing the main app.
+* **Routing:** React Router v6.
+
+### 4.2 Backend (Node.js + Express)
+
+* **API Layer:** RESTful API to handle user data, fetch problems, and receive submissions.
+* **Code Runner Service:** A secure, isolated environment (likely Dockerized containers) to execute backend code submissions to prevent malicious attacks (e.g., `rm -rf /`).
+
+### 4.3 Database (MongoDB)
+
+* **Schema Design:**
+* `Users`: Auth details, scores, submission history.
+* `Problems`: Title, description, starter code, test cases (hidden), difficulty.
+* `Submissions`: UserID, ProblemID, Code, Result (Pass/Fail), Timestamp.
+
+
+
+---
+
+## 5. Non-Functional Requirements
+
+* **Security:** Crucial. User code must strictly be run in a sandbox to prevent XSS (frontend) or Server-Side Remote Code Execution (backend).
+* **Performance:** The code editor must load under 2 seconds. Test results should return within 3-5 seconds.
+* **Responsiveness:** The UI must be fully responsive (Tailwind), though the coding IDE is optimized for Desktop/Laptop.
+
+---
+
+## 6. Roadmap
+
+### Phase 1: MVP (Months 1-2)
+
+* Basic Auth.
+* Problem list view.
+* Frontend Challenges only (React/CSS).
+* Basic automated testing (Pass/Fail).
+
+### Phase 2: Backend & Competition (Months 3-4)
+
+* Node.js/API challenges.
+* Global Leaderboard.
+* User Profiles.
+
+### Phase 3: Advanced Features (Future)
+
+* **AI Code Review:** Use GenAI to give personalized hints on *why* a submission failed.
+* **Multiplayer:** "Code Clash" mode where two users build the same UI component in real-time.
+
+---
+
