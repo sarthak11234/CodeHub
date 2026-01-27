@@ -1,34 +1,32 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/layout';
-import { HomePage } from './pages';
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          {/* Future routes */}
-          <Route path="/problems" element={<ComingSoon title="Problems" />} />
-          <Route path="/leaderboard" element={<ComingSoon title="Leaderboard" />} />
-          <Route path="/profile" element={<ComingSoon title="Profile" />} />
-          <Route path="/login" element={<ComingSoon title="Login" />} />
-          <Route path="/signup" element={<ComingSoon title="Sign Up" />} />
-        </Routes>
-      </Layout>
-    </BrowserRouter>
-  );
-}
-
-// Placeholder for routes we'll implement next
-function ComingSoon({ title }: { title: string }) {
-  return (
-    <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-white mb-4">{title}</h1>
-        <p className="text-slate-400">Coming soon in Phase 2...</p>
-      </div>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Layout>
+          <Routes>
+            <Route path="/" element={
+              <div className="flex flex-col items-center justify-center p-12 text-center">
+                <h1 className="text-5xl font-bold gradient-text mb-6">
+                  CodeHub Arena
+                </h1>
+                <p className="text-slate-400 text-lg max-w-lg mb-8">
+                  The infrastructure is now healthy. Starting to re-enable core modules.
+                </p>
+                <div className="flex gap-4">
+                  <div className="glass px-8 py-3 text-white font-medium">
+                    Glass Card Test
+                  </div>
+                </div>
+              </div>
+            } />
+          </Routes>
+        </Layout>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
