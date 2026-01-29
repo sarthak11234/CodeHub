@@ -34,14 +34,14 @@
 ## Phase 2: Landing Page (Hero & Features)
 
 ### 2.1 Hero Section
-- [ ] Create hero layout with centered text + floating code card
-- [ ] Implement "floating levitation" animation (y-axis bob)
-- [ ] Add mesh gradient background blobs (cyan + violet)
-- [ ] Style gradient text ("Master Web Dev In The Arena")
-- [ ] Add CTA button with glow hover effect
+- [x] Create hero layout with centered text + floating code card
+- [x] Implement "floating levitation" animation (y-axis bob)
+- [x] Add mesh gradient background blobs (cyan + violet)
+- [x] Style gradient text ("Master Web Dev In The Arena")
+- [x] Add CTA button with glow hover effect
 
 ### 2.2 Features Bento Grid
-- [ ] Build Bento Grid layout (large, tall, small boxes)
+- [x] Build Bento Grid layout (large, tall, small boxes)
 - [ ] Create "Real-time IDE" feature card with mock browser window
 - [ ] Create "Leaderboard" feature card with glowing rank badges
 - [ ] Create "Speed" feature card with radial performance graph
@@ -49,7 +49,7 @@
 
 ### 2.3 Additional Sections
 - [ ] Build "How It Works" section with step indicators
-- [ ] Build footer with navigation and social links
+- [x] Build footer with navigation and social links
 - [ ] Add subtle noise texture overlay for premium feel
 
 ---
@@ -57,21 +57,21 @@
 ## Phase 3: Authentication System
 
 ### 3.1 Backend Auth (JWT + Passport.js)
-- [ ] Set up Express.js server structure
-- [ ] Configure MongoDB connection (Mongoose)
-- [ ] Create `User` schema (email, password hash, scores, rank, badges)
-- [ ] Implement `/api/auth/register` endpoint
-- [ ] Implement `/api/auth/login` endpoint (returns JWT)
-- [ ] Implement `/api/auth/me` endpoint (protected, returns user profile)
-- [ ] Add password hashing (bcrypt)
-- [ ] Add JWT middleware for protected routes
+- [x] Set up Express.js server structure
+- [x] Configure MongoDB connection (Mongoose)
+- [x] Create `User` schema (email, password hash, scores, rank, badges)
+- [x] Implement `/api/auth/register` endpoint
+- [x] Implement `/api/auth/login` endpoint (returns JWT)
+- [x] Implement `/api/auth/me` endpoint (protected, returns user profile)
+- [x] Add password hashing (bcrypt)
+- [x] Add JWT middleware for protected routes
 
 ### 3.2 Frontend Auth Pages
-- [ ] Create Login page with glassmorphic form
-- [ ] Create Signup page with validation
-- [ ] Implement auth context/state management
+- [x] Create Login page with glassmorphic form
+- [x] Create Signup page with validation
+- [x] Implement auth context/state management
 - [ ] Add protected route wrapper component
-- [ ] Handle JWT storage (httpOnly cookie or secure localStorage)
+- [x] Handle JWT storage (httpOnly cookie or secure localStorage)
 
 ---
 

@@ -1,6 +1,17 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/layout';
 import { AuthProvider } from './context/AuthContext';
+import { Hero, Features } from './components/sections';
+import { LoginPage, SignupPage, ProfilePage } from './pages';
+
+function HomePage() {
+  return (
+    <>
+      <Hero />
+      <Features />
+    </>
+  );
+}
 
 function App() {
   return (
@@ -8,21 +19,10 @@ function App() {
       <BrowserRouter>
         <Layout>
           <Routes>
-            <Route path="/" element={
-              <div className="flex flex-col items-center justify-center p-12 text-center">
-                <h1 className="text-5xl font-bold gradient-text mb-6">
-                  CodeHub Arena
-                </h1>
-                <p className="text-slate-400 text-lg max-w-lg mb-8">
-                  The infrastructure is now healthy. Starting to re-enable core modules.
-                </p>
-                <div className="flex gap-4">
-                  <div className="glass px-8 py-3 text-white font-medium">
-                    Glass Card Test
-                  </div>
-                </div>
-              </div>
-            } />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Routes>
         </Layout>
       </BrowserRouter>

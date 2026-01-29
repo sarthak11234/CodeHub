@@ -4,9 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 
 export function ProfilePage() {
-    const { user, loading } = useAuth();
+    const { user, isLoading } = useAuth();
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="min-h-[60vh] flex items-center justify-center">
                 <div className="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" />
@@ -39,12 +39,12 @@ export function ProfilePage() {
                         <h1 className="text-2xl font-bold text-white mb-2">{user.username}</h1>
                         <p className="text-slate-400 mb-6">{user.email}</p>
                         <div className="flex justify-center gap-2 flex-wrap mb-6">
-                            {user.badges.map((badge: string) => (
+                            {(user.badges || []).map((badge: string) => (
                                 <span key={badge} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-slate-300 font-medium">
                                     {badge}
                                 </span>
                             ))}
-                            {user.badges.length === 0 && (
+                            {(!user.badges || user.badges.length === 0) && (
                                 <span className="text-slate-500 text-sm">No badges earned yet</span>
                             )}
                         </div>
