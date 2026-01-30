@@ -5,6 +5,7 @@ import { connectDB } from './config/database.js';
 import authRoutes from './routes/auth.js';
 import problemRoutes from './routes/problems.js';
 import submissionRoutes from './routes/submissions.js';
+import leaderboardRoutes from './routes/leaderboard.js';
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/problems', problemRoutes);
 app.use('/api/submissions', submissionRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
 
 // Health check
 app.get('/api/health', (_, res) => {

@@ -1,0 +1,149 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Trophy, Medal, Award, Users, Zap } from 'lucide-react';
+import { GlassCard } from '../components/ui';
+
+interface LeaderboardEntry {
+    position: number;
+    username: string;
+    score: number;
+    problemsSolved: number;
+    badges: string[];
+}
+
+export function LeaderboardPage() {
+    const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchLeaderboard();
+    }, []);
+
+    const fetchLeaderboard = async () => {
+        try {
+            const response = await fetch('/api/leaderboard');
+            const data = await response.json();
+            if (response.ok) {
+                setLeaderboard(data.leaderboard);
+            }
+        } catch (err) {
+            console.error('Failed to fetch leaderboard:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getPositionIcon = (position: number) => {
+        switch (position) {
+            case 1:
+                return <Trophy className="w-6 h-6 text-yellow-400" />;
+            case 2:
+                return <Medal className="w-6 h-6 text-slate-300" />;
+            case 3:
+                return <Award className="w-6 h-6 text-amber-600" />;
+            default:
+                return <span className="w-6 text-center font-bold text-slate-500">{position}</span>;
+        }
+    };
+
+    const getPositionBg = (position: number) => {
+        switch (position) {
+            case 1:
+                return 'bg-gradient-to-r from-yellow-500/20 to-amber-500/10 border-yellow-500/30';
+            case 2:
+                return 'bg-gradient-to-r from-slate-400/20 to-slate-500/10 border-slate-400/30';
+            case 3:
+                return 'bg-gradient-to-r from-amber-600/20 to-orange-500/10 border-amber-600/30';
+            default:
+                return 'bg-white/5 border-white/10 hover:bg-white/10';
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <div className="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" />
+            </div>
+        );
+    }
+
+    return (
+        <div className="container mx-auto px-6 py-12">
+            {/* Header */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center mb-12"
+            >
+                <div className="flex items-center justify-center gap-3 mb-4">
+                    <Trophy className="w-10 h-10 text-yellow-400" />
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-500 bg-clip-text text-transparent">
+                        Leaderboard
+                    </h1>
+                </div>
+                <p className="text-slate-400 text-lg">
+                    Top coders ranked by score
+                </p>
+            </motion.div>
+
+            {/* Leaderboard Table */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+            >
+                <GlassCard className="overflow-hidden">
+                    {/* Header Row */}
+                    <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-white/10 bg-white/5 text-sm font-medium text-slate-400 uppercase tracking-wider">
+                        <div className="col-span-1">#</div>
+                        <div className="col-span-5">User</div>
+                        <div className="col-span-3 text-center">Score</div>
+                        <div className="col-span-3 text-center">Solved</div>
+                    </div>
+
+                    {/* Rows */}
+                    {leaderboard.length === 0 ? (
+                        <div className="px-6 py-12 text-center text-slate-400">
+                            <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                            <p>No users yet. Be the first to solve a problem!</p>
+                        </div>
+                    ) : (
+                        leaderboard.map((entry, index) => (
+                            <motion.div
+                                key={entry.username}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                            >
+                                <Link
+                                    to={`/profile/${entry.username}`}
+                                    className={`grid grid-cols-12 gap-4 px-6 py-4 border-b border-white/5 transition-all ${getPositionBg(entry.position)}`}
+                                >
+                                    <div className="col-span-1 flex items-center">
+                                        {getPositionIcon(entry.position)}
+                                    </div>
+                                    <div className="col-span-5 flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-violet-500 flex items-center justify-center text-white font-bold">
+                                            {entry.username.charAt(0).toUpperCase()}
+                                        </div>
+                                        <span className="font-medium text-white">
+                                            {entry.username}
+                                        </span>
+                                    </div>
+                                    <div className="col-span-3 flex items-center justify-center gap-2">
+                                        <Zap className="w-4 h-4 text-cyan-400" />
+                                        <span className="font-bold text-cyan-400">{entry.score}</span>
+                                    </div>
+                                    <div className="col-span-3 flex items-center justify-center text-slate-400">
+                                        {entry.problemsSolved} problems
+                                    </div>
+                                </Link>
+                            </motion.div>
+                        ))
+                    )}
+                </GlassCard>
+            </motion.div>
+        </div>
+    );
+}
