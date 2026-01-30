@@ -3,6 +3,8 @@ import cors from 'cors';
 import { config } from './config/index.js';
 import { connectDB } from './config/database.js';
 import authRoutes from './routes/auth.js';
+import problemRoutes from './routes/problems.js';
+import submissionRoutes from './routes/submissions.js';
 
 const app = express();
 
@@ -12,6 +14,8 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/problems', problemRoutes);
+app.use('/api/submissions', submissionRoutes);
 
 // Health check
 app.get('/api/health', (_, res) => {

@@ -78,21 +78,21 @@
 ## Phase 4: Problem System
 
 ### 4.1 Problem Schema & API
-- [ ] Create `Problem` schema:
+- [x] Create `Problem` schema:
   - Title, description (Markdown), difficulty
   - Starter code, solution code
   - Test cases (hidden), category tags
-- [ ] Create `Submission` schema:
+- [x] Create `Submission` schema:
   - UserID, ProblemID, code, result, timestamp, execution time
-- [ ] Implement `/api/problems` (list all problems)
-- [ ] Implement `/api/problems/:id` (get single problem with starter code)
-- [ ] Implement `/api/submissions` (create submission, get user history)
+- [x] Implement `/api/problems` (list all problems)
+- [x] Implement `/api/problems/:id` (get single problem with starter code)
+- [x] Implement `/api/submissions` (create submission, get user history)
 
 ### 4.2 Problem List Page
-- [ ] Build problem cards with difficulty badges
-- [ ] Add category filter (React, CSS, Node.js)
-- [ ] Add difficulty filter (Easy, Medium, Hard)
-- [ ] Add search functionality
+- [x] Build problem cards with difficulty badges
+- [x] Add category filter (React, CSS, Node.js)
+- [x] Add difficulty filter (Easy, Medium, Hard)
+- [x] Add search functionality
 - [ ] Show user's completion status per problem
 
 ---
