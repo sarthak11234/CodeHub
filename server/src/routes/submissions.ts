@@ -4,6 +4,7 @@ import { Submission } from '../models/Submission.js';
 import { Problem } from '../models/Problem.js';
 import { User } from '../models/User.js';
 import { config } from '../config/index.js';
+import { gradeSubmission } from '../services/grader.js';
 
 const router = Router();
 
@@ -25,7 +26,7 @@ async function authenticate(req: Request, res: Response, next: NextFunction): Pr
     }
 }
 
-// POST /api/submissions - Create a new submission
+// POST /api/submissions - Create and grade a new submission
 router.post('/', authenticate, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const userId = (req as any).userId;
@@ -43,26 +44,51 @@ router.post('/', authenticate, async (req: Request, res: Response, next: NextFun
             return;
         }
 
-        // Create submission (result will be 'pending' - Phase 6 will implement actual grading)
+        // Grade the submission
+        const gradeResult = gradeSubmission(code, problem.category, problem.testCases);
+
+        // Create submission with grading results
         const submission = await Submission.create({
             userId,
             problemId,
             code,
-            result: 'pending',
-            executionTime: 0,
-            testResults: {
-                passed: 0,
-                total: problem.testCases.length,
-                details: [],
-            },
+            result: gradeResult.result,
+            executionTime: gradeResult.executionTime,
+            testResults: gradeResult.testResults,
         });
 
+        // If passed, check if this is user's first successful solve and award points
+        if (gradeResult.result === 'pass') {
+            // Check for previous successful submission
+            const previousSuccess = await Submission.findOne({
+                userId,
+                problemId,
+                result: 'pass',
+                _id: { $ne: submission._id },
+            });
+
+            if (!previousSuccess) {
+                // First successful solve - award points
+                await User.findByIdAndUpdate(userId, {
+                    $inc: { score: problem.points },
+                    $push: { solvedProblems: problemId },
+                });
+
+                // Increment problem's solved count
+                await Problem.findByIdAndUpdate(problemId, {
+                    $inc: { solvedCount: 1 },
+                });
+            }
+        }
+
         res.status(201).json({
-            message: 'Submission created successfully',
+            message: gradeResult.result === 'pass' ? 'All tests passed!' : 'Some tests failed',
             submission: {
                 id: submission._id,
                 problemId: submission.problemId,
                 result: submission.result,
+                executionTime: submission.executionTime,
+                testResults: submission.testResults,
                 createdAt: submission.createdAt,
             },
         });

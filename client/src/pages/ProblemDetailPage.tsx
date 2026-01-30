@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Code2, Zap, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import { GlassCard, Button } from '../components/ui';
-import { IDE } from '../components/ide';
+import { IDE, TestResults } from '../components/ide';
 import { useAuth } from '../context/AuthContext';
 
 interface Problem {
@@ -31,6 +31,7 @@ export function ProblemDetailPage() {
     const [error, setError] = useState<string | null>(null);
     const [showDescription, setShowDescription] = useState(true);
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+    const [testResults, setTestResults] = useState<any>(null);
 
     useEffect(() => {
         fetchProblem();
@@ -58,6 +59,7 @@ export function ProblemDetailPage() {
         if (!token || !problem) return;
 
         setSubmitStatus('submitting');
+        setTestResults(null);
         try {
             const response = await fetch('/api/submissions', {
                 method: 'POST',
@@ -71,16 +73,20 @@ export function ProblemDetailPage() {
                 }),
             });
 
+            const data = await response.json();
+
             if (response.ok) {
-                setSubmitStatus('success');
-                setTimeout(() => setSubmitStatus('idle'), 3000);
+                setTestResults({
+                    result: data.submission.result,
+                    executionTime: data.submission.executionTime,
+                    testResults: data.submission.testResults,
+                });
+                setSubmitStatus(data.submission.result === 'pass' ? 'success' : 'error');
             } else {
                 setSubmitStatus('error');
-                setTimeout(() => setSubmitStatus('idle'), 3000);
             }
         } catch (err) {
             setSubmitStatus('error');
-            setTimeout(() => setSubmitStatus('idle'), 3000);
         }
     };
 
@@ -203,6 +209,20 @@ export function ProblemDetailPage() {
                 problemTitle={problem.title}
                 onSubmit={token ? handleSubmit : undefined}
             />
+
+            {/* Test Results */}
+            {testResults && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4"
+                >
+                    <TestResults
+                        data={testResults}
+                        onClose={() => setTestResults(null)}
+                    />
+                </motion.div>
+            )}
 
             {/* Login prompt if not authenticated */}
             {!token && (
