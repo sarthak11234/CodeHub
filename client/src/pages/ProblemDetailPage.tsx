@@ -81,7 +81,8 @@ export function ProblemDetailPage() {
                     executionTime: data.submission.executionTime,
                     testResults: data.submission.testResults,
                 });
-                setSubmitStatus(data.submission.result === 'pass' ? 'success' : 'error');
+                // Submission succeeded (even if tests failed) - set to idle so we show test results
+                setSubmitStatus('idle');
             } else {
                 setSubmitStatus('error');
             }
