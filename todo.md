@@ -100,28 +100,28 @@
 ## Phase 5: The IDE (Core Feature)
 
 ### 5.1 Monaco Editor Integration
-- [ ] Install `@monaco-editor/react`
-- [ ] Configure editor themes (Dracula / Tokyo Night style)
-- [ ] Enable JSX, CSS, JavaScript language support
-- [ ] Add TypeScript IntelliSense
-- [ ] Configure keyboard shortcuts
+- [x] Install `@monaco-editor/react`
+- [x] Configure editor themes (Dracula / Tokyo Night style)
+- [x] Enable JSX, CSS, JavaScript language support
+- [x] Add TypeScript IntelliSense
+- [x] Configure keyboard shortcuts
 
 ### 5.2 Split-Pane Layout
-- [ ] Create resizable split-pane component
-- [ ] Left pane: Monaco Editor
-- [ ] Right pane: Preview iframe / Console output
+- [x] Create resizable split-pane component
+- [x] Left pane: Monaco Editor
+- [x] Right pane: Preview iframe / Console output
 - [ ] Add tabs for multiple files (if needed)
 
 ### 5.3 Live Preview (Sandpack)
-- [ ] Install `@codesandbox/sandpack-react`
-- [ ] Configure Sandpack provider for React projects
-- [ ] Pipe Monaco editor content into Sandpack bundler
-- [ ] Display live preview in right pane
-- [ ] Handle bundling errors gracefully
+- [x] Install `@codesandbox/sandpack-react`
+- [x] Configure Sandpack provider for React projects
+- [x] Pipe Monaco editor content into Sandpack bundler
+- [x] Display live preview in right pane
+- [x] Handle bundling errors gracefully
 
 ### 5.4 Console Output (for Backend Challenges)
-- [ ] Create console output component
-- [ ] Display `console.log` outputs
+- [x] Create console output component
+- [x] Display `console.log` outputs
 - [ ] Display test results (pass/fail with details)
 
 ---
