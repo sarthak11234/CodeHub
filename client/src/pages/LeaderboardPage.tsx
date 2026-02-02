@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trophy, Medal, Award, Users, Zap } from 'lucide-react';
+import { Trophy, Medal, Award, Users, Zap, Star } from 'lucide-react';
 import { GlassCard } from '../components/ui';
+import { useAuth } from '../context/AuthContext';
 
 interface LeaderboardEntry {
     position: number;
@@ -13,6 +14,7 @@ interface LeaderboardEntry {
 }
 
 export function LeaderboardPage() {
+    const { user } = useAuth();
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -109,38 +111,62 @@ export function LeaderboardPage() {
                             <p>No users yet. Be the first to solve a problem!</p>
                         </div>
                     ) : (
-                        leaderboard.map((entry, index) => (
-                            <motion.div
-                                key={entry.username}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: index * 0.05 }}
-                            >
-                                <Link
-                                    to={`/profile/${entry.username}`}
-                                    className={`grid grid-cols-12 gap-4 px-6 py-4 border-b border-white/5 transition-all ${getPositionBg(entry.position)}`}
+                        leaderboard.map((entry, index) => {
+                            const isCurrentUser = user?.username === entry.username;
+                            const glowStyle = entry.position <= 3 ? {
+                                boxShadow: entry.position === 1
+                                    ? '0 0 30px rgba(251, 191, 36, 0.3)'
+                                    : entry.position === 2
+                                        ? '0 0 20px rgba(148, 163, 184, 0.2)'
+                                        : '0 0 20px rgba(217, 119, 6, 0.2)'
+                            } : {};
+
+                            return (
+                                <motion.div
+                                    key={entry.username}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.05 }}
                                 >
-                                    <div className="col-span-1 flex items-center">
-                                        {getPositionIcon(entry.position)}
-                                    </div>
-                                    <div className="col-span-5 flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-violet-500 flex items-center justify-center text-white font-bold">
-                                            {entry.username.charAt(0).toUpperCase()}
+                                    <Link
+                                        to={`/user/${entry.username}`}
+                                        className={`grid grid-cols-12 gap-4 px-6 py-4 border-b border-white/5 transition-all relative ${isCurrentUser
+                                                ? 'bg-gradient-to-r from-cyan-500/20 to-violet-500/10 border-l-4 border-l-cyan-500'
+                                                : getPositionBg(entry.position)
+                                            }`}
+                                        style={glowStyle}
+                                    >
+                                        {isCurrentUser && (
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                                <Star className="w-4 h-4 text-cyan-400 fill-cyan-400" />
+                                            </div>
+                                        )}
+                                        <div className="col-span-1 flex items-center">
+                                            {getPositionIcon(entry.position)}
                                         </div>
-                                        <span className="font-medium text-white">
-                                            {entry.username}
-                                        </span>
-                                    </div>
-                                    <div className="col-span-3 flex items-center justify-center gap-2">
-                                        <Zap className="w-4 h-4 text-cyan-400" />
-                                        <span className="font-bold text-cyan-400">{entry.score}</span>
-                                    </div>
-                                    <div className="col-span-3 flex items-center justify-center text-slate-400">
-                                        {entry.problemsSolved} problems
-                                    </div>
-                                </Link>
-                            </motion.div>
-                        ))
+                                        <div className="col-span-5 flex items-center gap-3">
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${isCurrentUser
+                                                    ? 'bg-gradient-to-br from-cyan-400 to-violet-400 ring-2 ring-cyan-400/50'
+                                                    : 'bg-gradient-to-br from-cyan-500 to-violet-500'
+                                                }`}>
+                                                {entry.username.charAt(0).toUpperCase()}
+                                            </div>
+                                            <span className={`font-medium ${isCurrentUser ? 'text-cyan-300' : 'text-white'}`}>
+                                                {entry.username}
+                                                {isCurrentUser && <span className="ml-2 text-xs text-cyan-400">(You)</span>}
+                                            </span>
+                                        </div>
+                                        <div className="col-span-3 flex items-center justify-center gap-2">
+                                            <Zap className="w-4 h-4 text-cyan-400" />
+                                            <span className="font-bold text-cyan-400">{entry.score}</span>
+                                        </div>
+                                        <div className="col-span-3 flex items-center justify-center text-slate-400">
+                                            {entry.problemsSolved} problems
+                                        </div>
+                                    </Link>
+                                </motion.div>
+                            );
+                        })
                     )}
                 </GlassCard>
             </motion.div>
