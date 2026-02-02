@@ -10,4 +10,9 @@ export const config = {
         expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     },
     clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
+    sandbox: {
+        enabled: process.env.USE_DOCKER_SANDBOX === 'true',
+        timeout: parseInt(process.env.SANDBOX_TIMEOUT || '5000', 10),
+        memoryLimit: process.env.SANDBOX_MEMORY || '128m',
+    },
 };
