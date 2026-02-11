@@ -45,7 +45,7 @@ router.post('/', authenticate, async (req: Request, res: Response, next: NextFun
         }
 
         // Grade the submission
-        const gradeResult = gradeSubmission(code, problem.category, problem.testCases);
+        const gradeResult = await gradeSubmission(code, problem.category, problem.testCases);
 
         // Create submission with grading results
         const submission = await Submission.create({

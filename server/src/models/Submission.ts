@@ -13,6 +13,9 @@ export interface ISubmission extends Document {
             testCase: string;
             passed: boolean;
             message?: string;
+            expected?: string;
+            actual?: string;
+            hint?: string;
         }>;
     };
     createdAt: Date;
@@ -50,6 +53,9 @@ const submissionSchema = new Schema<ISubmission>(
                 testCase: String,
                 passed: Boolean,
                 message: String,
+                expected: String,
+                actual: String,
+                hint: String,
             }],
         },
     },

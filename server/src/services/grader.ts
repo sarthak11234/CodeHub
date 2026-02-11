@@ -169,7 +169,7 @@ function compareOutputs(actual: string, expected: string): boolean {
 /**
  * Grade JavaScript code by running it and checking output
  */
-function gradeJavaScript(code: string, testCases: TestCase[]): GradeResult {
+async function gradeJavaScript(code: string, testCases: TestCase[]): Promise<GradeResult> {
     const startTime = Date.now();
     const details: TestResult[] = [];
     let passed = 0;
@@ -186,7 +186,7 @@ function gradeJavaScript(code: string, testCases: TestCase[]): GradeResult {
 
         for (const testCase of testCases) {
             try {
-                const { context, logs } = createSandboxContext();
+                const { context, logs, errors } = createSandboxContext();
 
                 // Build test script that tries to call detected functions
                 let testScript = cleanCode + '\n';
@@ -194,35 +194,64 @@ function gradeJavaScript(code: string, testCases: TestCase[]): GradeResult {
                 // If test input looks like a function call, execute it directly
                 if (testCase.input.includes('(')) {
                     testScript += `
-                        try {
-                            const __result__ = ${testCase.input};
-                            if (__result__ !== undefined) {
-                                console.log(typeof __result__ === 'object' ? JSON.stringify(__result__) : __result__);
+                        (async function() {
+                            try {
+                                const __result__ = await Promise.resolve(${testCase.input});
+                                if (__result__ !== undefined) {
+                                    console.log(typeof __result__ === 'object' ? JSON.stringify(__result__) : __result__);
+                                }
+                            } catch (e) {
+                                console.error(e.message);
                             }
-                        } catch (e) {
-                            console.error(e.message);
-                        }
+                        })();
                     `;
                 } else if (functionNames.length > 0) {
                     // Try calling the first detected function with the test input
                     testScript += `
-                        try {
-                            const __input__ = ${testCase.input};
-                            const __fn__ = ${functionNames[0]};
-                            if (typeof __fn__ === 'function') {
-                                const __result__ = __fn__(__input__);
-                                console.log(typeof __result__ === 'object' ? JSON.stringify(__result__) : __result__);
+                        (async function() {
+                            try {
+                                const __input__ = ${testCase.input};
+                                const __fn__ = ${functionNames[0]};
+                                if (typeof __fn__ === 'function') {
+                                    const __result__ = await Promise.resolve(__fn__(__input__));
+                                    console.log(typeof __result__ === 'object' ? JSON.stringify(__result__) : __result__);
+                                }
+                            } catch (e) {
+                                console.error(e.message);
                             }
-                        } catch (e) {
-                            console.error(e.message);
-                        }
+                        })();
                     `;
                 }
 
-                vm.runInContext(testScript, context, { timeout: EXECUTION_TIMEOUT });
+                // Execute with timeout
+                try {
+                    vm.runInContext(testScript, context, { timeout: EXECUTION_TIMEOUT });
+
+                    // Wait a bit for async operations to complete
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                } catch (vmError: unknown) {
+                    const errorMsg = vmError instanceof Error ? vmError.message : 'Unknown error';
+                    errors.push(errorMsg);
+                }
 
                 const output = logs.join('\n').trim();
+                const errorOutput = errors.join('\n').trim();
                 const expected = testCase.expectedOutput;
+
+                // If there are errors, test fails
+                if (errorOutput) {
+                    const hint = generateHint(errorOutput, cleanCode);
+                    details.push({
+                        testCase: testCase.description,
+                        passed: false,
+                        message: `Runtime Error: ${errorOutput}`,
+                        expected,
+                        actual: '(error)',
+                        hint,
+                    });
+                    continue;
+                }
+
                 const testPassed = compareOutputs(output, expected);
 
                 if (testPassed) {
@@ -235,7 +264,9 @@ function gradeJavaScript(code: string, testCases: TestCase[]): GradeResult {
                         actual: output,
                     });
                 } else {
-                    const hint = !output ? 'Your function may not be returning or logging a value.' : '';
+                    const hint = !output
+                        ? 'Your function may not be returning or logging a value.'
+                        : 'Check if your output format matches the expected format (e.g., JSON structure, data types).';
                     details.push({
                         testCase: testCase.description,
                         passed: false,
@@ -299,18 +330,37 @@ function gradeCSS(code: string, testCases: TestCase[]): GradeResult {
     const cssLower = code.toLowerCase();
 
     for (const testCase of testCases) {
-        const property = testCase.input.replace('check ', '');
-        const expectedValue = testCase.expectedOutput.toLowerCase();
+        const property = testCase.input.replace('check ', '').trim();
+        const expectedValue = testCase.expectedOutput.toLowerCase().trim();
 
         // Multiple regex patterns for flexible CSS matching
         const patterns = [
+            // Exact match: property: value
             new RegExp(`${property}\\s*:\\s*${expectedValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i'),
+            // Partial match: property contains value
             new RegExp(`${property}\\s*:\\s*[^;]*${expectedValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i'),
         ];
 
-        const hasProperty = patterns.some(p => p.test(code)) ||
+        // Check for shorthand properties
+        const shorthandChecks: Record<string, (code: string, value: string) => boolean> = {
+            'justify-content': (c, v) => c.includes(`justify-content:${v}`) || c.includes(`justify-content: ${v}`) ||
+                (v === 'center' && (c.includes('place-content:center') || c.includes('place-content: center'))),
+            'align-items': (c, v) => c.includes(`align-items:${v}`) || c.includes(`align-items: ${v}`) ||
+                (v === 'center' && (c.includes('place-items:center') || c.includes('place-items: center'))),
+            'margin-left': (c, v) => c.includes(`margin-left:${v}`) || c.includes(`margin-left: ${v}`) ||
+                (v === 'auto' && /margin:\s*[^;]*auto/.test(c)),
+            'margin-right': (c, v) => c.includes(`margin-right:${v}`) || c.includes(`margin-right: ${v}`) ||
+                (v === 'auto' && /margin:\s*[^;]*auto/.test(c)),
+        };
+
+        let hasProperty = patterns.some(p => p.test(code)) ||
             cssLower.includes(`${property}:${expectedValue}`) ||
             cssLower.includes(`${property}: ${expectedValue}`);
+
+        // Check shorthand if applicable
+        if (!hasProperty && shorthandChecks[property]) {
+            hasProperty = shorthandChecks[property](cssLower, expectedValue);
+        }
 
         if (hasProperty) {
             passed++;
@@ -322,13 +372,24 @@ function gradeCSS(code: string, testCases: TestCase[]): GradeResult {
                 actual: 'Found in CSS',
             });
         } else {
+            // Generate helpful hint based on property
+            let hint = `Add "${property}: ${expectedValue};" to your CSS. Check spelling and value format.`;
+
+            if (property === 'display' && expectedValue === 'flex') {
+                hint = 'Use "display: flex;" to enable flexbox layout on the container.';
+            } else if (property === 'justify-content' || property === 'align-items') {
+                hint = `Use "${property}: ${expectedValue};" inside a flex or grid container to align items.`;
+            } else if (property.includes('margin') && expectedValue === 'auto') {
+                hint = 'Use "margin: 0 auto;" or "margin-left: auto; margin-right: auto;" to center horizontally.';
+            }
+
             details.push({
                 testCase: testCase.description,
                 passed: false,
                 message: `Missing CSS property`,
                 expected: `${property}: ${expectedValue}`,
                 actual: 'Not found',
-                hint: `Add "${property}: ${expectedValue};" to your CSS. Check spelling and value format.`,
+                hint,
             });
         }
     }
@@ -375,8 +436,8 @@ function gradeReact(code: string, testCases: TestCase[]): GradeResult {
             hint: 'Use fetch() or axios to make API calls inside useEffect',
         },
         'add todo': {
-            test: /setTodos?\s*\(\s*(?:\[?\s*\.\.\.|\w+\.concat)/,
-            hint: 'Use spread operator or concat to add items: setTodos([...todos, newTodo])',
+            test: /setTodos?\s*\(\s*(?:\[?\s*\.\.\.|prev\s*=>\s*\[?\s*\.\.\.prev|\w+\.concat)/,
+            hint: 'Use spread operator or concat to add items: setTodos([...todos, newTodo]) or setTodos(prev => [...prev, newTodo])',
         },
         'toggle todo': {
             test: /\.map\s*\([^)]*completed/i,
@@ -389,6 +450,22 @@ function gradeReact(code: string, testCases: TestCase[]): GradeResult {
         'localStorage': {
             test: /localStorage\.(get|set)Item/,
             hint: 'Use localStorage.setItem("key", value) and localStorage.getItem("key")',
+        },
+        'useContext': {
+            test: /useContext\s*\(/,
+            hint: 'Use useContext to consume context: const value = useContext(MyContext)',
+        },
+        'custom hook': {
+            test: /function\s+use[A-Z]\w*\s*\(|const\s+use[A-Z]\w*\s*=\s*\(/,
+            hint: 'Custom hooks should start with "use" and can call other hooks',
+        },
+        'form submit': {
+            test: /onSubmit\s*=\s*\{[^}]*preventDefault/i,
+            hint: 'Handle form submission with onSubmit and call e.preventDefault()',
+        },
+        'controlled input': {
+            test: /value\s*=\s*\{[^}]*\}\s*onChange\s*=|onChange\s*=\s*\{[^}]*\}\s*value\s*=/,
+            hint: 'Create controlled inputs with value={state} and onChange={handler}',
         },
     };
 
@@ -467,6 +544,14 @@ function gradeNode(code: string, testCases: TestCase[]): GradeResult {
             test: /res\.status\s*\(\s*404\s*\)|\.sendStatus\s*\(\s*404\s*\)/,
             hint: 'Handle not found: res.status(404).json({ error: "Not found" })',
         },
+        'status 400': {
+            test: /res\.status\s*\(\s*400\s*\)/,
+            hint: 'Handle bad request: res.status(400).json({ error: "Bad request" })',
+        },
+        'status 500': {
+            test: /res\.status\s*\(\s*500\s*\)/,
+            hint: 'Handle server error: res.status(500).json({ error: "Internal server error" })',
+        },
         'middleware': {
             test: /app\.use\s*\(|router\.use\s*\(/,
             hint: 'Add middleware with app.use() or router.use()',
@@ -478,6 +563,30 @@ function gradeNode(code: string, testCases: TestCase[]): GradeResult {
         'req.params': {
             test: /req\.params/,
             hint: 'Access URL params: const { id } = req.params',
+        },
+        'req.query': {
+            test: /req\.query/,
+            hint: 'Access query params: const { search } = req.query',
+        },
+        'async route': {
+            test: /(?:router|app)\.\w+\s*\(\s*['"`][^'"`]*['"`]\s*,\s*async\s*\(/,
+            hint: 'Use async route handlers: router.get("/", async (req, res) => { ... })',
+        },
+        'try catch': {
+            test: /try\s*\{[\s\S]*\}\s*catch/,
+            hint: 'Wrap async code in try-catch: try { ... } catch (error) { res.status(500).json({ error }) }',
+        },
+        'next': {
+            test: /next\s*\(/,
+            hint: 'Use next() to pass control to next middleware or pass errors: next(error)',
+        },
+        'express.json': {
+            test: /express\.json\s*\(\)/,
+            hint: 'Parse JSON bodies: app.use(express.json())',
+        },
+        'cors': {
+            test: /cors\s*\(/,
+            hint: 'Enable CORS: app.use(cors())',
         },
     };
 
@@ -496,7 +605,7 @@ function gradeNode(code: string, testCases: TestCase[]): GradeResult {
 
         if (!testPassed && !hint) {
             testPassed = code.includes(testCase.expectedOutput);
-            hint = `Expected pattern not found`;
+            hint = `Expected pattern not found. Make sure your code includes the required functionality.`;
         }
 
         if (testPassed) passed++;
@@ -520,11 +629,11 @@ function gradeNode(code: string, testCases: TestCase[]): GradeResult {
 /**
  * Main grading function - routes to appropriate grader
  */
-export function gradeSubmission(
+export async function gradeSubmission(
     code: string,
     category: string,
     testCases: TestCase[]
-): GradeResult {
+): Promise<GradeResult> {
     // Input validation
     if (!code || code.trim().length === 0) {
         return {
@@ -561,7 +670,7 @@ export function gradeSubmission(
 
     switch (category) {
         case 'javascript':
-            return gradeJavaScript(code, testCases);
+            return await gradeJavaScript(code, testCases);
         case 'css':
             return gradeCSS(code, testCases);
         case 'react':
