@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trophy, Medal, Award, Users, Zap, Star } from 'lucide-react';
+import { Trophy, Medal, Award, Users, Zap, Star, TrendingUp, Target } from 'lucide-react';
 import { GlassCard } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 
@@ -13,9 +13,16 @@ interface LeaderboardEntry {
     badges: string[];
 }
 
+interface LeaderboardStats {
+    totalUsers: number;
+    averageScore: number;
+    topScore: number;
+}
+
 export function LeaderboardPage() {
     const { user } = useAuth();
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+    const [stats, setStats] = useState<LeaderboardStats | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -28,6 +35,7 @@ export function LeaderboardPage() {
             const data = await response.json();
             if (response.ok) {
                 setLeaderboard(data.leaderboard);
+                setStats(data.stats);
             }
         } catch (err) {
             console.error('Failed to fetch leaderboard:', err);
@@ -62,6 +70,19 @@ export function LeaderboardPage() {
         }
     };
 
+    const getBadgeIcon = (badge: string) => {
+        // Map badge names to icons/emojis
+        const badgeMap: Record<string, string> = {
+            'CSS Wizard': '🎨',
+            'API Architect': '🏗️',
+            'React Master': '⚛️',
+            'JS Ninja': '🥷',
+            'Speed Demon': '⚡',
+            'Problem Solver': '🧩',
+        };
+        return badgeMap[badge] || '🏆';
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
@@ -88,6 +109,52 @@ export function LeaderboardPage() {
                     Top coders ranked by score
                 </p>
             </motion.div>
+
+            {/* Stats Dashboard */}
+            {stats && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+                >
+                    <GlassCard className="p-6">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-cyan-500/20 rounded-xl">
+                                <Users className="w-6 h-6 text-cyan-400" />
+                            </div>
+                            <div>
+                                <p className="text-sm text-slate-400">Total Competitors</p>
+                                <p className="text-2xl font-bold text-white">{stats.totalUsers}</p>
+                            </div>
+                        </div>
+                    </GlassCard>
+
+                    <GlassCard className="p-6">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-violet-500/20 rounded-xl">
+                                <TrendingUp className="w-6 h-6 text-violet-400" />
+                            </div>
+                            <div>
+                                <p className="text-sm text-slate-400">Average Score</p>
+                                <p className="text-2xl font-bold text-white">{stats.averageScore}</p>
+                            </div>
+                        </div>
+                    </GlassCard>
+
+                    <GlassCard className="p-6">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-yellow-500/20 rounded-xl">
+                                <Target className="w-6 h-6 text-yellow-400" />
+                            </div>
+                            <div>
+                                <p className="text-sm text-slate-400">Top Score</p>
+                                <p className="text-2xl font-bold text-white">{stats.topScore}</p>
+                            </div>
+                        </div>
+                    </GlassCard>
+                </motion.div>
+            )}
 
             {/* Leaderboard Table */}
             <motion.div
@@ -131,8 +198,8 @@ export function LeaderboardPage() {
                                     <Link
                                         to={`/user/${entry.username}`}
                                         className={`grid grid-cols-12 gap-4 px-6 py-4 border-b border-white/5 transition-all relative ${isCurrentUser
-                                                ? 'bg-gradient-to-r from-cyan-500/20 to-violet-500/10 border-l-4 border-l-cyan-500'
-                                                : getPositionBg(entry.position)
+                                            ? 'bg-gradient-to-r from-cyan-500/20 to-violet-500/10 border-l-4 border-l-cyan-500'
+                                            : getPositionBg(entry.position)
                                             }`}
                                         style={glowStyle}
                                     >
@@ -146,15 +213,33 @@ export function LeaderboardPage() {
                                         </div>
                                         <div className="col-span-5 flex items-center gap-3">
                                             <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${isCurrentUser
-                                                    ? 'bg-gradient-to-br from-cyan-400 to-violet-400 ring-2 ring-cyan-400/50'
-                                                    : 'bg-gradient-to-br from-cyan-500 to-violet-500'
+                                                ? 'bg-gradient-to-br from-cyan-400 to-violet-400 ring-2 ring-cyan-400/50'
+                                                : 'bg-gradient-to-br from-cyan-500 to-violet-500'
                                                 }`}>
                                                 {entry.username.charAt(0).toUpperCase()}
                                             </div>
-                                            <span className={`font-medium ${isCurrentUser ? 'text-cyan-300' : 'text-white'}`}>
-                                                {entry.username}
-                                                {isCurrentUser && <span className="ml-2 text-xs text-cyan-400">(You)</span>}
-                                            </span>
+                                            <div className="flex flex-col">
+                                                <span className={`font-medium ${isCurrentUser ? 'text-cyan-300' : 'text-white'}`}>
+                                                    {entry.username}
+                                                    {isCurrentUser && <span className="ml-2 text-xs text-cyan-400">(You)</span>}
+                                                </span>
+                                                {entry.badges && entry.badges.length > 0 && (
+                                                    <div className="flex gap-1 mt-1">
+                                                        {entry.badges.slice(0, 3).map((badge, i) => (
+                                                            <span
+                                                                key={i}
+                                                                className="text-xs"
+                                                                title={badge}
+                                                            >
+                                                                {getBadgeIcon(badge)}
+                                                            </span>
+                                                        ))}
+                                                        {entry.badges.length > 3 && (
+                                                            <span className="text-xs text-slate-400">+{entry.badges.length - 3}</span>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                         <div className="col-span-3 flex items-center justify-center gap-2">
                                             <Zap className="w-4 h-4 text-cyan-400" />

@@ -24,9 +24,21 @@ router.get('/', async (req: Request, res: Response, next: NextFunction): Promise
             joinedAt: user.createdAt,
         }));
 
+        // Calculate stats for dashboard
+        const totalUsers = await User.countDocuments();
+        const allUsers = await User.find().select('score').lean();
+        const totalScore = allUsers.reduce((sum, u) => sum + (u.score || 0), 0);
+        const avgScore = totalUsers > 0 ? Math.round(totalScore / totalUsers) : 0;
+        const topScore = users.length > 0 ? users[0].score : 0;
+
         res.json({
             count: leaderboard.length,
             leaderboard,
+            stats: {
+                totalUsers,
+                averageScore: avgScore,
+                topScore,
+            },
         });
     } catch (error) {
         next(error);
