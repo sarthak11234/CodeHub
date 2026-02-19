@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 
 interface User {
     id: string;
@@ -16,6 +16,7 @@ interface AuthContextType {
     isLoading: boolean;
     login: (token: string, user: User) => void;
     logout: () => void;
+    refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,8 +55,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(null);
     };
 
+    const refreshUser = useCallback(async () => {
+        const currentToken = token || localStorage.getItem(TOKEN_KEY);
+        if (!currentToken) return;
+
+        try {
+            const response = await fetch('/api/auth/me', {
+                headers: { Authorization: `Bearer ${currentToken}` },
+            });
+            if (response.ok) {
+                const data = await response.json();
+                const updatedUser = data.user;
+                localStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
+                setUser(updatedUser);
+            }
+        } catch (err) {
+            console.error('Failed to refresh user:', err);
+        }
+    }, [token]);
+
     return (
-        <AuthContext.Provider value={{ user, token, isLoading, login, logout }}>
+        <AuthContext.Provider value={{ user, token, isLoading, login, logout, refreshUser }}>
             {children}
         </AuthContext.Provider>
     );
