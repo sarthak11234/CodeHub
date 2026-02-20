@@ -42,4 +42,344 @@
     filter: blur(128px);
     pointer-events: none;
   }
+
+  /* ===== PREMIUM ANIMATIONS ===== */
+
+  /* Floating particles background */
+  @keyframes float-particle {
+
+    0%,
+    100% {
+      transform: translateY(0) translateX(0) scale(1);
+      opacity: 0;
+    }
+
+    10% {
+      opacity: 1;
+    }
+
+    90% {
+      opacity: 1;
+    }
+
+    100% {
+      transform: translateY(-100vh) translateX(20px) scale(0.5);
+      opacity: 0;
+    }
+  }
+
+  /* Ambient glow pulse */
+  @keyframes glow-pulse {
+
+    0%,
+    100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 0.6;
+      transform: scale(1.1);
+    }
+  }
+
+  /* Slow orbit for background blobs */
+  @keyframes orbit {
+    0% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+
+    25% {
+      transform: translate(50px, -30px) rotate(90deg);
+    }
+
+    50% {
+      transform: translate(0, -60px) rotate(180deg);
+    }
+
+    75% {
+      transform: translate(-50px, -30px) rotate(270deg);
+    }
+
+    100% {
+      transform: translate(0, 0) rotate(360deg);
+    }
+  }
+
+  /* Shimmer sweep across cards */
+  @keyframes shimmer-sweep {
+    0% {
+      transform: translateX(-100%) rotate(25deg);
+    }
+
+    100% {
+      transform: translateX(200%) rotate(25deg);
+    }
+  }
+
+  .shimmer-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer-effect::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 50%;
+    height: 200%;
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(255, 255, 255, 0.03),
+        transparent);
+    transform: translateX(-100%) rotate(25deg);
+    pointer-events: none;
+  }
+
+  .shimmer-effect:hover::after {
+    animation: shimmer-sweep 0.8s ease-in-out;
+  }
+
+  /* Gradient border animation */
+  @keyframes border-glow {
+
+    0%,
+    100% {
+      border-color: rgba(34, 211, 238, 0.2);
+    }
+
+    50% {
+      border-color: rgba(167, 139, 250, 0.3);
+    }
+  }
+
+  .animate-border-glow {
+    animation: border-glow 3s ease-in-out infinite;
+  }
+
+  /* Typing cursor blink */
+  @keyframes cursor-blink {
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .animate-cursor {
+    animation: cursor-blink 0.8s step-end infinite;
+  }
+
+  /* Counter animation for stats */
+  @keyframes count-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-count-up {
+    animation: count-up 0.6s ease-out forwards;
+  }
+
+  /* Smooth page entrance */
+  @keyframes page-enter {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-page-enter {
+    animation: page-enter 0.5s ease-out;
+  }
+
+  /* Pulsing ring for avatars */
+  @keyframes ring-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.4);
+    }
+
+    70% {
+      box-shadow: 0 0 0 10px rgba(34, 211, 238, 0);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 rgba(34, 211, 238, 0);
+    }
+  }
+
+  .animate-ring-pulse {
+    animation: ring-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Gradient text animation */
+  @keyframes gradient-shift {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .animate-gradient-text {
+    background: linear-gradient(270deg, #22d3ee, #a78bfa, #f472b6, #22d3ee);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 6s ease infinite;
+  }
+
+  /* Floating element */
+  @keyframes gentle-float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .animate-float {
+    animation: gentle-float 3s ease-in-out infinite;
+  }
+
+  /* Scale pop on appear */
+  @keyframes pop-in {
+    0% {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+
+    70% {
+      transform: scale(1.05);
+    }
+
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .animate-pop-in {
+    animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  /* Skeleton loading pulse */
+  @keyframes skeleton-pulse {
+
+    0%,
+    100% {
+      background-position: 200% center;
+    }
+
+    50% {
+      background-position: -200% center;
+    }
+  }
+
+  .skeleton {
+    background: linear-gradient(90deg,
+        rgba(255, 255, 255, 0.04) 25%,
+        rgba(255, 255, 255, 0.08) 50%,
+        rgba(255, 255, 255, 0.04) 75%);
+    background-size: 400% 100%;
+    animation: skeleton-pulse 2s ease-in-out infinite;
+    border-radius: 0.5rem;
+  }
+
+  /* Animated mesh blob for background */
+  .mesh-blob-cyan {
+    background: rgba(6, 182, 212, 0.15);
+    animation: orbit 20s ease-in-out infinite;
+  }
+
+  .mesh-blob-violet {
+    background: rgba(139, 92, 246, 0.15);
+    animation: orbit 25s ease-in-out infinite reverse;
+  }
+
+  /* Particle system */
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: rgba(34, 211, 238, 0.6);
+    pointer-events: none;
+    animation: float-particle var(--duration, 8s) linear infinite;
+    animation-delay: var(--delay, 0s);
+    left: var(--x, 50%);
+    bottom: -10px;
+  }
+
+  .particle:nth-child(even) {
+    background: rgba(167, 139, 250, 0.5);
+    width: 3px;
+    height: 3px;
+  }
+
+  /* Glow hover for interactive elements */
+  .glow-hover {
+    transition: all 0.3s ease;
+  }
+
+  .glow-hover:hover {
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.15), 0 0 60px rgba(34, 211, 238, 0.05);
+    border-color: rgba(34, 211, 238, 0.3);
+  }
+
+  /* Smooth scroll */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Selection highlight */
+  ::selection {
+    background: rgba(34, 211, 238, 0.3);
+    color: white;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
 }

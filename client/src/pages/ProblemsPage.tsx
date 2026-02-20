@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Code2, Filter, Search, Zap, Clock, Users } from 'lucide-react';
+import { Code2, Filter, Search, Zap, Users } from 'lucide-react';
 import { GlassCard, Button } from '../components/ui';
 
 interface Problem {
@@ -150,26 +150,42 @@ export function ProblemsPage() {
 
             {/* Problems Grid */}
             {!loading && !error && (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {problems.map((problem, index) => (
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
+                    }}
+                    className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+                >
+                    {problems.map((problem) => (
                         <motion.div
                             key={problem._id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
+                            variants={{
+                                hidden: { opacity: 0, y: 30, scale: 0.95 },
+                                visible: { opacity: 1, y: 0, scale: 1 },
+                            }}
+                            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
                         >
                             <Link to={`/problems/${problem._id}`}>
-                                <GlassCard className="p-6 h-full hover:scale-[1.02] transition-transform cursor-pointer group">
+                                <GlassCard className="p-6 h-full cursor-pointer group" hoverGlow={true}>
                                     {/* Header */}
                                     <div className="flex items-start justify-between mb-4">
-                                        <span className="text-2xl">{categoryIcons[problem.category]}</span>
+                                        <motion.span
+                                            className="text-2xl"
+                                            whileHover={{ scale: 1.2, rotate: 10 }}
+                                            transition={{ type: 'spring', stiffness: 300 }}
+                                        >
+                                            {categoryIcons[problem.category]}
+                                        </motion.span>
                                         <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase border ${difficultyColors[problem.difficulty]}`}>
                                             {problem.difficulty}
                                         </span>
                                     </div>
 
                                     {/* Title */}
-                                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">
+                                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors duration-300">
                                         {problem.title}
                                     </h3>
 
@@ -200,7 +216,7 @@ export function ProblemsPage() {
                             </Link>
                         </motion.div>
                     ))}
-                </div>
+                </motion.div>
             )}
 
             {/* Empty State */}
