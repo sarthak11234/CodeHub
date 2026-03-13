@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Code2, Filter, Search, Zap, Users } from 'lucide-react';
-import { GlassCard, Button } from '../components/ui';
+import { Code2, Filter, Search, Zap, Users, CheckCircle2 } from 'lucide-react';
+import { GlassCard, Button, SkeletonProblemCard } from '../components/ui';
+import { useAuth } from '../context/AuthContext';
 
 interface Problem {
     _id: string;
@@ -28,12 +29,18 @@ const categoryIcons: Record<string, string> = {
 };
 
 export function ProblemsPage() {
+    const { user } = useAuth();
     const [problems, setProblems] = useState<Problem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [difficulty, setDifficulty] = useState('');
     const [category, setCategory] = useState('');
     const [search, setSearch] = useState('');
+
+    // Build set of solved problem IDs for O(1) lookup
+    const solvedSet = new Set<string>(
+        (user?.solvedProblems ?? []).map((id: string) => id.toString())
+    );
 
     useEffect(() => {
         fetchProblems();
@@ -130,13 +137,23 @@ export function ProblemsPage() {
                         </div>
                         <Button type="submit" size="sm">Search</Button>
                     </form>
+
+                    {/* Solved count badge */}
+                    {user && solvedSet.size > 0 && (
+                        <div className="flex items-center gap-2 ml-auto px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/20">
+                            <CheckCircle2 className="w-4 h-4 text-green-400" />
+                            <span className="text-sm text-green-400 font-medium">{solvedSet.size} solved</span>
+                        </div>
+                    )}
                 </div>
             </GlassCard>
 
-            {/* Loading State */}
+            {/* Loading State — Skeleton Grid */}
             {loading && (
-                <div className="flex items-center justify-center py-20">
-                    <div className="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" />
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <SkeletonProblemCard key={i} />
+                    ))}
                 </div>
             )}
 
@@ -159,63 +176,74 @@ export function ProblemsPage() {
                     }}
                     className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
                 >
-                    {problems.map((problem) => (
-                        <motion.div
-                            key={problem._id}
-                            variants={{
-                                hidden: { opacity: 0, y: 30, scale: 0.95 },
-                                visible: { opacity: 1, y: 0, scale: 1 },
-                            }}
-                            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-                        >
-                            <Link to={`/problems/${problem._id}`}>
-                                <GlassCard className="p-6 h-full cursor-pointer group" hoverGlow={true}>
-                                    {/* Header */}
-                                    <div className="flex items-start justify-between mb-4">
-                                        <motion.span
-                                            className="text-2xl"
-                                            whileHover={{ scale: 1.2, rotate: 10 }}
-                                            transition={{ type: 'spring', stiffness: 300 }}
-                                        >
-                                            {categoryIcons[problem.category]}
-                                        </motion.span>
-                                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase border ${difficultyColors[problem.difficulty]}`}>
-                                            {problem.difficulty}
-                                        </span>
-                                    </div>
+                    {problems.map((problem) => {
+                        const isSolved = solvedSet.has(problem._id);
+                        return (
+                            <motion.div
+                                key={problem._id}
+                                variants={{
+                                    hidden: { opacity: 0, y: 30, scale: 0.95 },
+                                    visible: { opacity: 1, y: 0, scale: 1 },
+                                }}
+                                transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                            >
+                                <Link to={`/problems/${problem._id}`}>
+                                    <GlassCard className="p-6 h-full cursor-pointer group relative" hoverGlow={true}>
+                                        {/* Solved badge overlay */}
+                                        {isSolved && (
+                                            <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 bg-green-500/20 border border-green-500/30 rounded-full">
+                                                <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
+                                                <span className="text-xs text-green-400 font-semibold">Solved</span>
+                                            </div>
+                                        )}
 
-                                    {/* Title */}
-                                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors duration-300">
-                                        {problem.title}
-                                    </h3>
-
-                                    {/* Description Preview */}
-                                    <p className="text-slate-400 text-sm mb-4 line-clamp-2">
-                                        {problem.description.split('\n')[0].replace(/^#+ /, '')}
-                                    </p>
-
-                                    {/* Stats */}
-                                    <div className="flex items-center gap-4 text-sm text-slate-500">
-                                        <div className="flex items-center gap-1">
-                                            <Zap className="w-4 h-4 text-cyan-500" />
-                                            <span>{problem.points} pts</span>
+                                        {/* Header */}
+                                        <div className="flex items-start justify-between mb-4">
+                                            <motion.span
+                                                className="text-2xl"
+                                                whileHover={{ scale: 1.2, rotate: 10 }}
+                                                transition={{ type: 'spring', stiffness: 300 }}
+                                            >
+                                                {categoryIcons[problem.category]}
+                                            </motion.span>
+                                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase border ${difficultyColors[problem.difficulty]}`}>
+                                                {problem.difficulty}
+                                            </span>
                                         </div>
-                                        <div className="flex items-center gap-1">
-                                            <Users className="w-4 h-4 text-violet-500" />
-                                            <span>{problem.solvedCount} solved</span>
-                                        </div>
-                                    </div>
 
-                                    {/* Category Tag */}
-                                    <div className="mt-4 pt-4 border-t border-white/5">
-                                        <span className="text-xs text-slate-500 uppercase tracking-wider font-medium">
-                                            {problem.category}
-                                        </span>
-                                    </div>
-                                </GlassCard>
-                            </Link>
-                        </motion.div>
-                    ))}
+                                        {/* Title */}
+                                        <h3 className={`text-xl font-bold mb-2 group-hover:text-cyan-400 transition-colors duration-300 ${isSolved ? 'text-slate-300' : 'text-white'}`}>
+                                            {problem.title}
+                                        </h3>
+
+                                        {/* Description Preview */}
+                                        <p className="text-slate-400 text-sm mb-4 line-clamp-2">
+                                            {problem.description.split('\n')[0].replace(/^#+ /, '')}
+                                        </p>
+
+                                        {/* Stats */}
+                                        <div className="flex items-center gap-4 text-sm text-slate-500">
+                                            <div className="flex items-center gap-1">
+                                                <Zap className="w-4 h-4 text-cyan-500" />
+                                                <span>{problem.points} pts</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <Users className="w-4 h-4 text-violet-500" />
+                                                <span>{problem.solvedCount} solved</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Category Tag */}
+                                        <div className="mt-4 pt-4 border-t border-white/5">
+                                            <span className="text-xs text-slate-500 uppercase tracking-wider font-medium">
+                                                {problem.category}
+                                            </span>
+                                        </div>
+                                    </GlassCard>
+                                </Link>
+                            </motion.div>
+                        );
+                    })}
                 </motion.div>
             )}
 

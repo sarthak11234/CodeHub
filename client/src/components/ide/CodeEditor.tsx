@@ -56,6 +56,18 @@ export function CodeEditor({ value, onChange, language = 'javascript', readOnly 
                 onChange={(val) => onChange(val || '')}
                 onMount={handleEditorMount}
                 theme="codehub-dark"
+                loading={
+                    <div className="h-full w-full bg-slate-900 flex flex-col gap-3 p-4">
+                        {/* Simulated code skeleton lines */}
+                        {[80, 60, 90, 50, 70, 40, 75, 55].map((w, i) => (
+                            <div
+                                key={i}
+                                className="skeleton rounded"
+                                style={{ width: `${w}%`, height: '14px', animationDelay: `${i * 0.1}s` }}
+                            />
+                        ))}
+                    </div>
+                }
                 options={{
                     fontSize: 14,
                     fontFamily: "'JetBrains Mono', 'Fira Code', monospace",

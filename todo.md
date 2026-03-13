@@ -14,11 +14,7 @@
 - [x] Set up NPM Workspaces monorepo structure (frontend + backend)
 
 ### 1.2 Design System Setup
-- [x] Create global CSS variables for the "Glassmorphic IDE" theme:
-  - `bg-slate-950` (deep blue-black background)
-  - `bg-white/5` + `backdrop-blur-xl` (glass surfaces)
-  - `cyan-500` / `violet-500` (accent colors)
-  - `slate-100` / `slate-400` (text hierarchy)
+- [x] Create global CSS variables for the "Glassmorphic IDE" theme
 - [x] Install and configure Framer Motion for animations
 - [x] Install Lucide React for icons
 - [ ] Install Shadcn/UI components (optional - can add later)
@@ -42,15 +38,15 @@
 
 ### 2.2 Features Bento Grid
 - [x] Build Bento Grid layout (large, tall, small boxes)
-- [ ] Create "Real-time IDE" feature card with mock browser window
-- [ ] Create "Leaderboard" feature card with glowing rank badges
-- [ ] Create "Speed" feature card with radial performance graph
-- [ ] Implement scroll-reveal staggered animations (`whileInView`)
+- [x] Create "Real-time IDE" feature card with mock browser window
+- [x] Create "Leaderboard" feature card with glowing rank badges
+- [x] Create "Speed" feature card with radial performance graph
+- [ ] Add scroll-reveal staggered animations on outer grid cards (`whileInView` on container)
 
 ### 2.3 Additional Sections
-- [ ] Build "How It Works" section with step indicators
+- [x] Build "How It Works" section with step indicators
 - [x] Build footer with navigation and social links
-- [ ] Add subtle noise texture overlay for premium feel
+- [ ] Apply `.noise-overlay` class on body/layout (CSS added but not yet applied)
 
 ---
 
@@ -70,20 +66,16 @@
 - [x] Create Login page with glassmorphic form
 - [x] Create Signup page with validation
 - [x] Implement auth context/state management
-- [ ] Add protected route wrapper component
-- [x] Handle JWT storage (httpOnly cookie or secure localStorage)
+- [x] Add protected route wrapper component (`ProtectedRoute.tsx`)
+- [x] Handle JWT storage (secure localStorage)
 
 ---
 
 ## Phase 4: Problem System
 
 ### 4.1 Problem Schema & API
-- [x] Create `Problem` schema:
-  - Title, description (Markdown), difficulty
-  - Starter code, solution code
-  - Test cases (hidden), category tags
-- [x] Create `Submission` schema:
-  - UserID, ProblemID, code, result, timestamp, execution time
+- [x] Create `Problem` schema
+- [x] Create `Submission` schema
 - [x] Implement `/api/problems` (list all problems)
 - [x] Implement `/api/problems/:id` (get single problem with starter code)
 - [x] Implement `/api/submissions` (create submission, get user history)
@@ -93,7 +85,7 @@
 - [x] Add category filter (React, CSS, Node.js)
 - [x] Add difficulty filter (Easy, Medium, Hard)
 - [x] Add search functionality
-- [ ] Show user's completion status per problem
+- [x] Show user's completion status per problem (green "Solved" badge)
 
 ---
 
@@ -101,10 +93,11 @@
 
 ### 5.1 Monaco Editor Integration
 - [x] Install `@monaco-editor/react`
-- [x] Configure editor themes (Dracula / Tokyo Night style)
+- [x] Configure editor themes (codehub-dark custom theme)
 - [x] Enable JSX, CSS, JavaScript language support
 - [x] Add TypeScript IntelliSense
 - [x] Configure keyboard shortcuts
+- [x] Add skeleton loading state while Monaco downloads
 
 ### 5.2 Split-Pane Layout
 - [x] Create resizable split-pane component
@@ -122,79 +115,79 @@
 ### 5.4 Console Output (for Backend Challenges)
 - [x] Create console output component
 - [x] Display `console.log` outputs
-- [ ] Display test results (pass/fail with details)
+- [x] Display test results (pass/fail with details — `TestResults.tsx`)
 
 ---
 
 ## Phase 6: Grading System
 
-### 6.1 Frontend Grading (Jest/Vitest)
-- [ ] Set up test runner on backend (containerized)
-- [ ] Create test case format for React components:
-  - DOM structure checks
-  - Event handler verification
-  - State change validation
-- [ ] Return detailed test results to frontend
+### 6.1 Backend Grading (grader.ts)
+- [x] JavaScript grading via vm sandbox (with function + output comparison)
+- [x] CSS grading via pattern matching (properties, selectors)
+- [x] React grading via pattern matching & component checks
+- [x] Node.js grading via pattern matching (Express routes, middleware)
+- [x] Docker sandbox (`dockerSandbox.ts`) with vm fallback when Docker unavailable
+- [x] Dockerfile + `run.js` for containerized execution
+- [x] Timeout + memory limits
+- [ ] Set up Puppeteer/Playwright visual grading (Phase 6.2 — stretch goal)
+- [ ] Build Docker image and test E2E orchestration
 
-### 6.2 Visual Grading (Optional MVP)
-- [ ] Set up Puppeteer/Playwright on backend server
-- [ ] Implement screenshot comparison logic
-- [ ] Calculate visual match percentage
-- [ ] Return visual diff result to user
-
-### 6.3 Backend/API Grading
-- [ ] Create Docker container for secure code execution
-- [ ] Implement endpoint that:
-  1. Spins up container with user's Node.js code
-  2. Sends HTTP requests to user's API
-  3. Validates responses against expected output
-  4. Returns pass/fail result
-- [ ] Add timeout limits (prevent infinite loops)
-- [ ] Add resource limits (prevent memory bombs)
+### 6.2 Frontend Grading UI
+- [x] `TestResults.tsx` — per-test pass/fail, expected vs actual, hint expansion
+- [x] Auto-scroll to results after submission
+- [x] Confetti animation when all tests pass
+- [x] `AnimatePresence` exit animation on test results
 
 ---
 
 ## Phase 7: Competitive Features
 
 ### 7.1 Leaderboard
-- [ ] Calculate Elo rating or point-based scores
-- [ ] Create `/api/leaderboard` endpoint (top N users)
-- [ ] Build leaderboard page with glassmorphic user cards
-- [ ] Add rank badges with glowing effects (#1, #2, #3 special)
-- [ ] Show current user's position
+- [x] `/api/leaderboard` endpoint (top N users)
+- [x] Build leaderboard page with glassmorphic user cards + rank badges
+- [x] Show current user's position (highlighted row)
+- [x] Skeleton loading state for leaderboard
+- [ ] Calculate Elo rating or weighted scoring formula
 
 ### 7.2 User Profile
-- [ ] Create profile page layout
-- [ ] Display global rank, total problems solved
-- [ ] Display skill badges ("CSS Wizard", "API Architect")
-- [ ] Show submission history with performance charts
-- [ ] Add heatmap of coding activity (like GitHub)
+- [x] Create profile page (`ProfilePage.tsx`) for logged-in user
+- [x] Display global rank, total problems solved
+- [x] Display skill badges ("CSS Wizard", "API Architect")
+- [x] Show submission history on profile
 
-### 7.3 Submission Metrics
-- [ ] Track and display execution time per submission
+### 7.3 Public User Profile
+- [x] `/api/leaderboard/user/:username` endpoint
+- [x] `UserProfilePage.tsx` — rank-colored avatar, badges grid, solved problems
+- [x] Skeleton loading state
+- [ ] Add coding activity heatmap (like GitHub)
+
+### 7.4 Submission Metrics
+- [x] Track execution time per submission (stored in Submission model)
 - [ ] Track code character count (optimization metric)
-- [ ] Show percentile rankings
+- [ ] Show percentile rankings per problem
 
 ---
 
 ## Phase 8: Polish & Optimization
 
 ### 8.1 Animations
-- [ ] Add "Glass Shimmer" hover effect on cards
-- [ ] Ensure all page transitions use Framer Motion
-- [ ] Add loading skeleton states
-- [ ] Add micro-interactions (button presses, form submissions)
+- [x] Glass shimmer hover effect on cards (`.shimmer-effect` CSS class)
+- [x] Confetti CSS animation (`confetti-fall` + `.confetti-particle`)
+- [x] Page transitions (`animate-page-enter`, Framer Motion `initial`/`animate`)
+- [x] Loading skeleton states (problems grid, leaderboard table, Monaco editor)
+- [x] Micro-interactions (hover scale on badges, whileHover on emojis)
+- [ ] Add scroll-reveal stagger animation to outer Features Bento grid cards
 
 ### 8.2 Performance
-- [ ] Ensure editor loads under 2 seconds
-- [ ] Lazy load Monaco Editor
-- [ ] Optimize images and assets
-- [ ] Add code splitting for routes
+- [x] Monaco Editor lazy load via `loading` prop with skeleton
+- [ ] Code splitting for routes (React.lazy + Suspense per page)
+- [ ] Optimize production bundle size analysis
+- [ ] Ensure editor loads under 2 seconds (benchmark)
 
 ### 8.3 Responsiveness
-- [ ] Ensure landing page is mobile-friendly
-- [ ] Show "Desktop recommended" message on IDE pages for mobile
-- [ ] Test on various screen sizes
+- [ ] Ensure landing page is fully mobile-friendly
+- [ ] Show "Desktop recommended" banner on IDE pages for mobile users
+- [ ] Test on various screen sizes (320px, 768px, 1024px, 1440px)
 
 ---
 
@@ -235,11 +228,10 @@
 |-------|------------|
 | Frontend | React + Vite + TypeScript |
 | Styling | Tailwind CSS + Framer Motion |
-| UI Components | Shadcn/UI + Lucide Icons |
+| UI Components | Lucide Icons + Custom GlassCard/Button |
 | Code Editor | Monaco Editor |
-| Sandbox | Sandpack (frontend) + Docker (backend) |
+| Sandbox | Sandpack (frontend) + Docker/vm (backend) |
 | Backend | Node.js + Express |
 | Database | MongoDB (Atlas) |
-| Auth | JWT + Passport.js |
-| Testing | Jest/Vitest + Puppeteer/Playwright |
+| Auth | JWT + bcrypt |
 | Deployment | Vercel (FE) + Render/Railway (BE) |

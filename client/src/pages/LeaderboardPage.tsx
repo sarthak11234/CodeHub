@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Trophy, Medal, Award, Users, Zap, Star, TrendingUp, Target } from 'lucide-react';
-import { GlassCard } from '../components/ui';
+import { GlassCard, SkeletonLeaderboardRow } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 
 interface LeaderboardEntry {
@@ -85,8 +85,28 @@ export function LeaderboardPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <div className="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" />
+            <div className="container mx-auto px-6 py-12">
+                <div className="text-center mb-12">
+                    <div className="skeleton w-48 h-10 mx-auto rounded-xl mb-4" />
+                    <div className="skeleton w-64 h-5 mx-auto rounded" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center gap-4">
+                            <div className="skeleton w-12 h-12 rounded-xl" />
+                            <div className="space-y-2">
+                                <div className="skeleton w-24 h-4 rounded" />
+                                <div className="skeleton w-16 h-6 rounded" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                    <div className="skeleton h-12 w-full rounded-none" />
+                    {Array.from({ length: 8 }).map((_, i) => (
+                        <SkeletonLeaderboardRow key={i} />
+                    ))}
+                </div>
             </div>
         );
     }

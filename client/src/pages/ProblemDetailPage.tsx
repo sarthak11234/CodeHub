@@ -1,10 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Code2, Zap, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import { GlassCard, Button } from '../components/ui';
 import { IDE, TestResults } from '../components/ide';
 import { useAuth } from '../context/AuthContext';
+
+// Confetti burst on success
+function ConfettiBurst() {
+    const colors = ['#06b6d4', '#a78bfa', '#f59e0b', '#10b981', '#f472b6', '#60a5fa'];
+    const particles = Array.from({ length: 24 });
+    return (
+        <div className="absolute inset-x-0 top-0 pointer-events-none overflow-hidden h-24 z-50">
+            {particles.map((_, i) => (
+                <div
+                    key={i}
+                    className="confetti-particle"
+                    style={{
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 20}%`,
+                        backgroundColor: colors[i % colors.length],
+                        animationDelay: `${Math.random() * 0.6}s`,
+                        animationDuration: `${0.8 + Math.random() * 0.6}s`,
+                        borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+                    }}
+                />
+            ))}
+        </div>
+    );
+}
 
 interface Problem {
     _id: string;
@@ -32,6 +56,8 @@ export function ProblemDetailPage() {
     const [showDescription, setShowDescription] = useState(true);
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
     const [testResults, setTestResults] = useState<any>(null);
+    const [showConfetti, setShowConfetti] = useState(false);
+    const resultsRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         fetchProblem();
@@ -76,13 +102,19 @@ export function ProblemDetailPage() {
             const data = await response.json();
 
             if (response.ok) {
+                const result = data.submission.result;
                 setTestResults({
-                    result: data.submission.result,
+                    result,
                     executionTime: data.submission.executionTime,
                     testResults: data.submission.testResults,
                 });
-                // Submission succeeded (even if tests failed) - set to idle so we show test results
                 setSubmitStatus('idle');
+                if (result === 'pass') {
+                    setShowConfetti(true);
+                    setTimeout(() => setShowConfetti(false), 2000);
+                    // Scroll to results
+                    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                }
             } else {
                 setSubmitStatus('error');
             }
@@ -212,18 +244,23 @@ export function ProblemDetailPage() {
             />
 
             {/* Test Results */}
-            {testResults && (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-4"
-                >
-                    <TestResults
-                        data={testResults}
-                        onClose={() => setTestResults(null)}
-                    />
-                </motion.div>
-            )}
+            <AnimatePresence>
+                {testResults && (
+                    <motion.div
+                        ref={resultsRef}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="mt-4 relative"
+                    >
+                        {showConfetti && <ConfettiBurst />}
+                        <TestResults
+                            data={testResults}
+                            onClose={() => setTestResults(null)}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Login prompt if not authenticated */}
             {!token && (
