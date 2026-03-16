@@ -8,7 +8,7 @@ const router = Router();
 // Generate JWT token
 function generateToken(userId: string): string {
     return jwt.sign({ id: userId }, config.jwt.secret, {
-        expiresIn: config.jwt.expiresIn,
+        expiresIn: config.jwt.expiresIn as import('jsonwebtoken').SignOptions['expiresIn'],
     });
 }
 
