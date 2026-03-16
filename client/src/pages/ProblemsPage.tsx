@@ -104,10 +104,10 @@ export function ProblemsPage() {
                         onChange={(e) => setDifficulty(e.target.value)}
                         className="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
                     >
-                        <option value="">All Difficulties</option>
-                        <option value="easy">Easy</option>
-                        <option value="medium">Medium</option>
-                        <option value="hard">Hard</option>
+                        <option value="" className="bg-slate-900">All Difficulties</option>
+                        <option value="easy" className="bg-slate-900">Easy</option>
+                        <option value="medium" className="bg-slate-900">Medium</option>
+                        <option value="hard" className="bg-slate-900">Hard</option>
                     </select>
 
                     {/* Category Filter */}
@@ -116,11 +116,11 @@ export function ProblemsPage() {
                         onChange={(e) => setCategory(e.target.value)}
                         className="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
                     >
-                        <option value="">All Categories</option>
-                        <option value="react">React</option>
-                        <option value="css">CSS</option>
-                        <option value="javascript">JavaScript</option>
-                        <option value="node">Node.js</option>
+                        <option value="" className="bg-slate-900">All Categories</option>
+                        <option value="react" className="bg-slate-900">React</option>
+                        <option value="css" className="bg-slate-900">CSS</option>
+                        <option value="javascript" className="bg-slate-900">JavaScript</option>
+                        <option value="node" className="bg-slate-900">Node.js</option>
                     </select>
 
                     {/* Search */}
