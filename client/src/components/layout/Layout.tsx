@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Code2, Trophy, User as UserIcon, LogOut } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Button } from '../ui';
 import { useAuth } from '../../context/AuthContext';
 
@@ -127,19 +127,9 @@ export function Layout({ children }: LayoutProps) {
                 </div>
             </motion.nav>
 
-            {/* Main Content with Page Transition */}
+            {/* Main Content */}
             <main className="pt-20 relative z-10">
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={location.pathname}
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8 }}
-                        transition={{ duration: 0.3, ease: 'easeInOut' }}
-                    >
-                        {children}
-                    </motion.div>
-                </AnimatePresence>
+                {children}
             </main>
 
             {/* Footer */}
