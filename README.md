@@ -15,7 +15,7 @@
   - **Frontend**: Functional tests (Vitest/RTL) and Visual matching.
   - **Backend**: API validation via secure, isolated Docker sandboxes.
 - **🏆 Competitive Mechanics**: Global leaderboards, Elo-based ranking, and performance metrics.
-- **💎 Premium Aesthetic**: A "Cyber-Educational" design with glassmorphism, physics-based animations (Framer Motion), and a sleek dark theme.
+- **💎 Premium Aesthetic**: A "Cyber-Educational" design with glassmorphism, physics-based animations (Framer Motion), and a sleek dark  elegant theme.
 
 ---
 
